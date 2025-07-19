@@ -2,99 +2,94 @@ import torch
 import torch.nn.functional as F
 
 
-#
 def ab_div(logits, teacher_logits, no_model_batch, alpha, beta):
-    """
-    Calculate D^{(alpha, beta)} divergence for student (logits) and teacher (teacher_logits) distributions.
-
-    Args:
-        logits: Tensor of student logits (B x S x D).
-        teacher_logits: Tensor of teacher logits (B x S x D).
-        no_model_batch: Dictionary containing auxiliary data (e.g., labels, mask).
-        alpha: The alpha parameter in the divergence.
-        beta: The beta parameter in the divergence.
-
-    Returns:
-        ab_loss: The alpha-beta divergence loss.
-    """
-    # Compute teacher and student probabilities
-    teacher_probs = F.softmax(teacher_logits, dim=-1, dtype=torch.float32)  # Shape: (B, S, D)
-    student_probs = F.softmax(logits, dim=-1, dtype=torch.float32)  # Shape: (B, S, D)
-
-    # Create inf_mask to handle infinite logits
-    inf_mask = torch.isinf(logits) | torch.isinf(teacher_logits)
-
-    # Special case when alpha = 0 and beta = 0
-    if alpha == 0 and beta == 0:
-        log_diff = torch.log(student_probs) - torch.log(teacher_probs)  # Shape: (B, S, D)
-        log_diff = torch.masked_fill(log_diff, inf_mask, 0)  # Handle infinities
-        divergence = 0.5 * torch.sum(log_diff ** 2, dim=-1)  # Shape: (B, S)
-    elif alpha == 0 and beta != 0:
-        # Case where alpha = 0
-        q_beta = torch.pow(student_probs, beta)  # Shape: (B, S, D)
-        p_beta = torch.pow(teacher_probs, beta)
-        likeli_ratio = q_beta / p_beta
-        likeli_ratio = torch.masked_fill(likeli_ratio, torch.isnan(likeli_ratio), 0)
-        divergence = (1 / beta) * torch.sum(
-            q_beta * torch.log(likeli_ratio) - q_beta + p_beta,
-            dim=-1,
-        )
-    elif beta == 0 and alpha != 0:
-        # Case where beta = 0
-        p_alpha = torch.pow(teacher_probs, alpha)  # Shape: (B, S, D)
-        p_alpha = torch.masked_fill(p_alpha, inf_mask, 0)
-        q_alpha = torch.pow(student_probs, alpha)
-        q_alpha = torch.masked_fill(q_alpha, inf_mask, 0)
-        likeli_ratio = p_alpha / q_alpha
-        likeli_ratio = torch.masked_fill(likeli_ratio, torch.isnan(likeli_ratio), 0)
-        divergence = (1 / alpha) * torch.sum(
-            p_alpha * torch.log(likeli_ratio) - p_alpha + q_alpha,
-            dim=-1,
-        )
-    elif alpha + beta == 0:
-        # Case where alpha + beta = 0
-        p_alpha = torch.pow(teacher_probs, alpha)  # Shape: (B, S, D)
-        q_alpha = torch.pow(student_probs, alpha)  # Shape: (B, S, D)
-        p_alpha = torch.masked_fill(p_alpha, inf_mask, 0)
-        q_alpha = torch.masked_fill(q_alpha, inf_mask, 0)
-        divergence = torch.sum(
-            (1 / alpha) * (torch.log(q_alpha / p_alpha) + (p_alpha / q_alpha) - 1),
-            dim=-1
-        )
+    """Calculate D^{(alpha, beta)} divergence."""
+    # Calculate log probabilities
+    teacher_log_probs = F.log_softmax(teacher_logits, dim=-1, dtype=torch.float32)
+    student_log_probs = F.log_softmax(logits, dim=-1, dtype=torch.float32)
+    eps = 1e-8
+    
+    if abs(alpha) < eps and abs(beta) < eps:
+        # alpha = 0, beta = 0: L2 distance in log space
+        log_diff = student_log_probs - teacher_log_probs
+        divergence = 0.5 * torch.sum(log_diff ** 2, dim=-1)
+        del log_diff
+    elif abs(alpha) < eps:
+        # alpha = 0, beta != 0
+        log_q_beta = beta * student_log_probs
+        log_p_beta = beta * teacher_log_probs
+        log_ratio = torch.where(torch.isfinite(log_q_beta - log_p_beta), 
+                               log_q_beta - log_p_beta, torch.zeros_like(log_q_beta))
+        q_beta, p_beta = torch.exp(log_q_beta), torch.exp(log_p_beta)
+        divergence = (1/beta ** 2) * torch.sum(q_beta * log_ratio - q_beta + p_beta, dim=-1)
+        del q_beta, p_beta, log_ratio, log_p_alpha, log_q_alpha
+    elif abs(beta) < eps:
+        # beta = 0, alpha != 0
+        log_p_alpha = alpha * teacher_log_probs
+        log_q_alpha = alpha * student_log_probs
+        log_ratio = torch.where(torch.isfinite(log_p_alpha - log_q_alpha),
+                               log_p_alpha - log_q_alpha, torch.zeros_like(log_p_alpha))
+        p_alpha, q_alpha = torch.exp(log_p_alpha), torch.exp(log_q_alpha)
+        divergence = (1/alpha ** 2) * torch.sum(p_alpha * log_ratio - p_alpha + q_alpha, dim=-1)
+        del p_alpha, q_alpha, log_ratio, log_p_alpha, log_q_alpha
+    elif abs(alpha + beta) < eps:
+        # alpha + beta = 0
+        log_p_alpha = alpha * teacher_log_probs
+        log_q_alpha = alpha * student_log_probs
+        log_ratio = torch.where(torch.isfinite(log_q_alpha - log_p_alpha),
+                               log_q_alpha - log_p_alpha, torch.zeros_like(log_q_alpha))
+        inv_ratio = torch.exp(log_p_alpha - log_q_alpha)
+        divergence = torch.sum((1/alpha ** 2) * (log_ratio + inv_ratio - 1), dim=-1)
+        del log_ratio, inv_ratio, log_p_alpha, log_q_alpha
     else:
-        # General case
-        p_alpha = torch.pow(teacher_probs, alpha)
-        q_beta = torch.pow(student_probs, beta)
-        divergence = p_alpha
-        divergence.mul_(q_beta)
-        divergence.masked_fill_(inf_mask, 0)
+        # General case 
+        # First calculate term1
+        log_combined = teacher_log_probs.mul_(alpha)  
+        student_log_probs.mul_(beta)  
+        log_combined.add_(student_log_probs) 
+        term1 = torch.exp(log_combined)
+        del log_combined  # Free memory
+    
+        # Calculate term2, 
+        teacher_log_probs = F.log_softmax(teacher_logits, dim=-1, dtype=torch.float32)
+        teacher_log_probs.mul_(alpha + beta)  
+        term2 = torch.exp(teacher_log_probs)
 
-        tmp = torch.pow(teacher_probs, alpha + beta)
-        tmp.mul_(alpha / (alpha + beta))
-        tmp.masked_fill_(inf_mask, 0)
-        divergence.sub_(tmp)
-        del tmp
+        term2.mul_(alpha / (alpha + beta)) 
+    
+        # Subtract term2 from term1 immediately
+        term1.sub_(term2)  # In-place: term1 - term2
+        del term2  
+    
+        # Calculate term3
+        student_log_probs = F.log_softmax(logits, dim=-1, dtype=torch.float32)
+        student_log_probs.mul_(alpha + beta)  # In-place: (alpha + beta) * student_log_probs
+        term3 = torch.exp(student_log_probs)
 
-        tmp = torch.pow(student_probs, alpha + beta)
-        tmp.mul_(beta / (alpha + beta))
-        tmp.masked_fill_(inf_mask, 0)
-        divergence.sub_(tmp)
-        del tmp
+        term3.mul_(beta / (alpha + beta))  
+    
+        # Final calculation
+        term1.sub_(term3)  # In-place: term1 - term3
+        del term3  
+    
+        divergence = -torch.sum(term1, dim=-1).div_(alpha * beta)
+        del term1 
+    
+    del teacher_log_probs, student_log_probs
+    
+    # Apply mask and compute final loss
+    mask = (no_model_batch["label"] != -100)
+    torch.where(torch.isfinite(divergence), divergence, torch.zeros_like(divergence), out=divergence)
+    divergence.mul_(mask.float())  # In-place masking
+    
+    valid_tokens = mask.sum()
+    del mask
+    
+    result = divergence.sum().div_(valid_tokens)    
+    del divergence, valid_tokens
+    
+    return result
 
-        divergence = -torch.sum(divergence, dim=-1) / (alpha * beta)
-
-    mask = (no_model_batch["label"] != -100).int()  # Shape: (B, S)
-
-    # Apply the mask first to ignore padding positions
-    masked_divergence = divergence * mask.float()  # Shape: (B, S), element-wise mask
-
-    # Sum the divergence over the sequence length (S), resulting in shape (B,)
-    x = torch.sum(masked_divergence, dim=-1)  # Sum over the sequence dimension (S)
-
-    # Compute the ab_loss by summing the masked loss and normalizing by the number of valid positions
-    ab_loss = torch.sum(x) / torch.sum(mask.float())  # Normalize by the total number of valid tokens
-
-    return ab_loss
 
 
 def bdkd(logits, teacher_logits, no_model_batch):
