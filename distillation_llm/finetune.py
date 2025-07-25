@@ -195,11 +195,14 @@ def get_distil_loss(args, tokenizer, model, teacher_model, model_batch, no_model
             distil_loss = reverse_kl(logits, teacher_logits, no_model_batch)
         elif "ab" in args.type:
             distil_loss = ab_div(logits, teacher_logits, no_model_batch, args.ab_alpha, args.ab_beta)
-        else:
-            # distil_loss = alphanet(logits, teacher_logits, no_model_batch, 0.2, 0.9)
+        elif "bdkd" in args.type:
+            distil_loss = bdkd(logits, teacher_logits, no_model_batch)
+        elif "alphanet" in args.type:
             distil_loss = alphanet(logits, teacher_logits, no_model_batch, args.ab_alpha, args.ab_beta)
-            # print(distil_loss.shape)
-            # distil_loss = AKL(logits, teacher_logits, no_model_batch)
+        elif "akl" in args.type:
+            distil_loss = AKL(logits, teacher_logits, no_model_batch)
+        else:
+            raise ValueError(f"Distillation type {args.type} is not supported yet.")
     return distil_loss
 
 
