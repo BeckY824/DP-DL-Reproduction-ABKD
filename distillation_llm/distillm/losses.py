@@ -9,7 +9,7 @@ def ab_div(logits, teacher_logits, no_model_batch, alpha, beta):
     eps = 1e-8
 
     if abs(alpha) < eps and abs(beta) < eps:
-        # Case 1: alpha = 0, beta = 0 (already highly optimized)
+        # Case 1: alpha = 0, beta = 0
         divergence = 0.5 * torch.sum((log_q - log_p).pow(2), dim=-1)
 
     elif abs(alpha) < eps:
@@ -47,8 +47,7 @@ def ab_div(logits, teacher_logits, no_model_batch, alpha, beta):
         term2 = (alpha / apb) * torch.exp(torch.logsumexp(apb * log_p, dim=-1))
         term3 = (beta / apb) * torch.exp(torch.logsumexp(apb * log_q, dim=-1))
         divergence = - (term1 - term2 - term3) / (alpha * beta)
-
-    # --- Post-processing Section ---
+        
     mask = (no_model_batch["label"] != -100).float()
     
     # Replace any NaN/inf values in the divergence with 0.0 for safe masking
