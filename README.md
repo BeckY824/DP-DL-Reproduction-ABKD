@@ -8,17 +8,12 @@
 
 This repository is forked from the original implementation and serves as a reproduction of the method. The paper is available [here](https://arxiv.org/abs/2505.04560).
 
-**Paper Title: ABKD: Pursuing a Proper Allocation of the Probability Mass in Knowledge Distillation via α-β-Divergence**
-
-**Authors: Guanghui Wang, [Zhiyong Yang*](https://joshuaas.github.io/), [Zitai Wang](https://wang22ti.com/), [Shi Wang](https://ictkc.github.io/), [Qianqian Xu](https://qianqianxu010.github.io/), [Qingming Huang*](https://people.ucas.ac.cn/~qmhuang)**  
-
-![fig1_compressed](https://github.com/user-attachments/assets/75795455-1d12-45b0-87ee-8363d5cd51be)
 
 
 
 ## Table of Contents
 - [Standard Classification Task](#Standard-Classification-Task)
-
+- [Extended Task for CIFAR100-LT]
 ## Standard Classification Task
 
 Please make sure you are in the `standard_classification` directory:
