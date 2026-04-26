@@ -6,7 +6,7 @@
 <!-- <a href="https://arxiv.org/abs/2402.03898"><img src="https://img.shields.io/badge/Paper-arXiv:2402.03898-Green"></a>
 <a href=#bibtex><img src="https://img.shields.io/badge/Paper-BibTex-yellow"></a> -->
 
-This repository is the official PyTorch implementation of ABKD (💫ICML 2025 Oral💫 **1.0%**). The paper is available [here](https://arxiv.org/abs/2505.04560).
+This repository is forked from the original implementation and serves as a reproduction of the method. The paper is available [here](https://arxiv.org/abs/2505.04560).
 
 **Paper Title: ABKD: Pursuing a Proper Allocation of the Probability Mass in Knowledge Distillation via α-β-Divergence**
 
@@ -67,7 +67,7 @@ The resulting log file of an experiment recording test accuracy after each epoch
 
 
 ## BibTeX
-If you find this repo useful for your research, please consider citing our paper:
+If you find this repo useful for your research, please consider citing their paper:
 
 ```
 @article{wang2025abkd,
