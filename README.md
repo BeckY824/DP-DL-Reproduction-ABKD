@@ -8,6 +8,8 @@
 
 This repository is forked from the original implementation and serves as a reproduction of the method. The paper is available [here](https://arxiv.org/abs/2505.04560).
 
+We only reproduced the **standard classification task**, and further extended the experiments to include **CIFAR-100-LT**.
+
 
 
 
@@ -60,7 +62,7 @@ bash train_ls.sh 1.2 1.2 0.9 0.9 resnet56 resnet20 0
 
 The resulting log file of an experiment recording test accuracy after each epoch is saved in './save'.
 
-## Extended Task for CIFAR100-LT
+## Extended Task for CIFAR-100-LT
 
 ## BibTeX
 If you find this repo useful for your research, please consider citing their paper:
