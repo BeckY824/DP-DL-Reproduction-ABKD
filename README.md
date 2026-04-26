@@ -6,7 +6,7 @@
 <!-- <a href="https://arxiv.org/abs/2402.03898"><img src="https://img.shields.io/badge/Paper-arXiv:2402.03898-Green"></a>
 <a href=#bibtex><img src="https://img.shields.io/badge/Paper-BibTex-yellow"></a> -->
 
-This repository is forked from the original implementation and serves as a reproduction of the method. The paper is available [here](https://arxiv.org/abs/2505.04560).
+This repository is forked from the original implementation and serves as a reproduction of the method. The original paper is available [here](https://arxiv.org/abs/2505.04560).
 
 We only reproduced the **standard classification task**, and further extended the experiments to include **CIFAR-100-LT**.
 
