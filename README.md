@@ -13,7 +13,7 @@ This repository is forked from the original implementation and serves as a repro
 
 ## Table of Contents
 - [Standard Classification Task](#Standard-Classification-Task)
-- [Extended Task for CIFAR100-LT]
+- [Extended Task for CIFAR100-LT](#Extended-Task-for-CIFAR100-LT)
 ## Standard Classification Task
 
 Please make sure you are in the `standard_classification` directory:
@@ -60,6 +60,7 @@ bash train_ls.sh 1.2 1.2 0.9 0.9 resnet56 resnet20 0
 
 The resulting log file of an experiment recording test accuracy after each epoch is saved in './save'.
 
+## Extended Task for CIFAR100-LT
 
 ## BibTeX
 If you find this repo useful for your research, please consider citing their paper:
