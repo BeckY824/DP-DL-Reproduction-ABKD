@@ -63,6 +63,39 @@ bash train_ls.sh 1.2 1.2 0.9 0.9 resnet56 resnet20 0
 The resulting log file of an experiment recording test accuracy after each epoch is saved in './save'.
 
 ## Extended Task for CIFAR-100-LT
+We do some changes to the file train_student.py and now rename to train_student-2.py. One is the dataset arguments setup, and the other is the option setup when we choose Cifar100-LT.
+
+### Running
+- To run vanilla KD:(need to change the dataset input)
+```
+bash train_kd.sh 
+```
+- To calibrate the loss function used in vanilla KD and obtain our proposed **ABKD**:
+```
+bash train_ab_lt.sh 
+  1.1 \  # start_alpha_beta: Starting value of (alpha + beta)
+  1.1 \  # end_alpha_beta: Ending value of (alpha + beta)
+  0.8 \   # start_alpha
+  0.8 \   # end_alpha
+  resnet56 \   # teacher_model
+  resnet20 \   # student_model
+  0 \   # gpu_id
+  32    # b (weight for distillation loss)
+```
+- To run other baselines (e.g., LSD):
+```
+bash train_ls_lt.sh
+1.0 \ # alpha value
+0.0 \ # beta value
+resnet56 \ # teacher model
+resnet20 \ # student model
+0 \ # gpu_id
+```
+
+- To calibrate the loss function of LSD and obtain ABLSD:
+```
+bash train_ls_lt.sh 0.5 0.5 resnet56 resnet20 0
+```
 
 ## BibTeX
 If you find this repo useful for your research, please consider citing their paper:
