@@ -51,7 +51,7 @@ bash train_ab.sh
   
 - To run other baselines (e.g., LSD):
 ```
-bash train_ls.sh 1.0 1.0 0 0 resnet56 resnet20 \
+bash train_ls.sh 1.0 1.0 1.0 1.0 resnet56 resnet20 \
   0 # gpu id
 ```
 
