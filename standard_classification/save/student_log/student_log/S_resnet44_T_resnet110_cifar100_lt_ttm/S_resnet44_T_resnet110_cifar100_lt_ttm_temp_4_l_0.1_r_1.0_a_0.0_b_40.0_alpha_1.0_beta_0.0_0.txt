@@ -1,0 +1,4 @@
+Epoch 1, Train Acc: 3.1065, Train Loss: 9.8622, Train Entropy (Temp): 0.0000, Train Entropy (No Temp): 0.0000, Test Acc: 0.9900, Test Loss: 4.6122
+Epoch 2, Train Acc: 3.2637, Train Loss: 8.4300, Train Entropy (Temp): 0.0000, Train Entropy (No Temp): 0.0000, Test Acc: 1.0000, Test Loss: 4.6112
+Epoch 3, Train Acc: 3.2082, Train Loss: 8.4352, Train Entropy (Temp): 0.0000, Train Entropy (No Temp): 0.0000, Test Acc: 1.0000, Test Loss: 4.6126
+Epoch 4, Train Acc: 3.1065, Train Loss: 8.4400, Train Entropy (Temp): 0.0000, Train Entropy (No Temp): 0.0000, Test Acc: 1.0000, Test Loss: 4.6118
