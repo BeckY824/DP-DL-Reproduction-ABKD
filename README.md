@@ -10,6 +10,8 @@ This repository is forked from the original implementation and serves as a repro
 
 We only reproduced the **standard classification task**, and further extended the experiments to include **CIFAR-100-LT**.
 
+The reproduction paper work is available [here](https://github.com/BeckY824/DP-DL-Reproduction-ABKD/blob/master/standard_classification/COMP6258_Reproduction.pdf).
+
 The save results are included in the directory:
 ```
 standard_classification/save
