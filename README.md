@@ -15,7 +15,7 @@ We only reproduced the **standard classification task**, and further extended th
 
 ## Table of Contents
 - [Standard Classification Task](#Standard-Classification-Task)
-- [Extended Task for CIFAR100-LT](#Extended-Task-for-CIFAR100-LT)
+- [Extended Task for CIFAR100-LT](#Extended-Task-for-CIFAR-100-LT)
 ## Standard Classification Task
 
 Please make sure you are in the `standard_classification` directory:
