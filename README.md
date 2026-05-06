@@ -10,6 +10,11 @@ This repository is forked from the original implementation and serves as a repro
 
 We only reproduced the **standard classification task**, and further extended the experiments to include **CIFAR-100-LT**.
 
+The save results are included in the directory:
+```
+standard_classification/save
+```
+
 
 
 
@@ -97,6 +102,7 @@ resnet20 \ # student model
 bash train_ls_lt.sh 0.5 0.5 resnet56 resnet20 0
 ```
 
+The resulting log file of an experiment recording test accuracy after each epoch is saved in './save'.
 ## BibTeX
 If you find this repo useful for your research, please consider citing their paper:
 
